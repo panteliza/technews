@@ -1,9 +1,7 @@
-import React from 'react'
-
-const Footer = () => {
+export default function Footer() {
   return (
-    <div className='bg-blue-500'>Footer</div>
-  )
+    <footer className="py-3">
+      This website is designed by GTCoding © 2023
+    </footer>
+  );
 }
-
-export default Footer
