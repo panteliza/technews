@@ -1,51 +1,34 @@
-"use client";
+import Link from "next/link";
+import { TCategory } from "@/app/types";
 
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+const getCategories = async (): Promise<TCategory[] | null> => {
+  try {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/categories`);
 
-export default function DeleteButton({ id }: { id: string }) {
-  const router = useRouter();
-  const deleteImage = async (publicId: string) => {
-    const res = await fetch("/api/removeImage", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ publicId }),
-    });
-  };
-
-  const handleDelete = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this post?"
-    );
-
-    if (confirmed) {
-      try {
-        const res = await fetch(`/api/posts/${id}`, {
-          method: "DELETE",
-          headers: {
-            "Content-type": "application/json",
-          },
-        });
-
-        if (res.ok) {
-          console.log("Post deleted");
-          const post = await res.json();
-          const { publicId } = post;
-          await deleteImage(publicId);
-
-          toast.success("Post deleted successfully");
-          router.refresh();
-        }
-      } catch (error) {
-        toast.error("Something went wrong");
-        console.log(error);
-      }
+    if (res.ok) {
+      const categories = await res.json();
+      return categories;
     }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+  return null;
+};
 
+export default async function CategoriesList() {
+  const categories = await getCategories();
   return (
-    <button onClick={handleDelete} className="text-red-600">
-      Delete
-    </button>
+    <div className="flex gap-2 text-sm flex-wrap">
+      {categories &&
+        categories.map((category) => (
+          <Link
+            key={category.id}
+            className="px-4 py-1 rounded-md bg-slate-800 text-white cursor-pointer"
+            href={`/categories/${category.catName}`}
+          >
+            {category.catName}
+          </Link>
+        ))}
+    </div>
   );
 }
